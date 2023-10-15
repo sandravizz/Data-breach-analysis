@@ -152,17 +152,14 @@ body {
 //  Size and margin
 // --------------------------------------
 
-var margin = {top: 150, right: 0, bottom: 0, left: 130};
-var totalWidth = 755;
-var totalHeight = 680;
-var width = totalWidth - margin.left - margin.right;
-var height = totalHeight - margin.top - margin.bottom;
+let margin = {top: 150, right: 0, bottom: 0, left: 130};
+let totalWidth = 755;
+let totalHeight = 680;
+let width = totalWidth - margin.left - margin.right;
+let height = totalHeight - margin.top - margin.bottom;
 
-// --------------------------------------
-//  Svg
-// --------------------------------------
-
-var svg = d3.select('#chart')
+//SVG container
+let svg = d3.select('#chart')
 	.append("svg")
 	.attr("width", totalWidth)
 	.attr("height", totalHeight);
@@ -172,19 +169,19 @@ var svg = d3.select('#chart')
 // --------------------------------------
 
 //Green color scale
-var greenColor = d3.scaleLinear()
+let greenColor = d3.scaleLinear()
   .domain([-0.08, 0.8])
   .range(["#99dcff", "#00166f"]);
 
-var legendWidth = 200,
+let legendWidth = 200,
     legendHeight = 8;
 
 //legend container
-var legend = svg.append("g")
+let legend = svg.append("g")
   .attr("transform", "translate(" + 400 + "," + 550 + ")");
 
 //Create the gradient	
-var gradient = legend.append("defs").append("linearGradient")
+let gradient = legend.append("defs").append("linearGradient")
   .attr("id", "gradient-legend")
   .attr("x1", "0%").attr("y1", "0%")
   .attr("x2", "100%").attr("y2", "0%");
@@ -235,16 +232,16 @@ legend.append("text")
   .style("text-anchor", "start")
   .text("high");
 
-// // --------------------------------------
-// //  Data
-// // --------------------------------------
+// --------------------------------------
+// Data
+// --------------------------------------
 
 const data = d3.csv("sector_type.csv", d3.autoType)
       .then(function(data){ 
 
-// // --------------------------------------
-// // Tooltip 
-// // --------------------------------------
+// --------------------------------------
+// Tooltip
+// --------------------------------------
 
 const tooltip = d3.tip()
                 .attr("class", "tooltip")
@@ -252,16 +249,13 @@ const tooltip = d3.tip()
 
 svg.call(tooltip); 
 
-// // --------------------------------------
-// //  Scales
-// // --------------------------------------
+// --------------------------------------
+// Scales
+// --------------------------------------
 
 let c = d3.scaleLinear()
     .domain(d3.extent(data, d => d.count))
     .range(["#99dcff", "#00166f"]);
-
-// let c2 = d3.scaleSequential(d3.interpolateMagma)
-//         .domain(d3.extent(data, d => d.count).reverse());
 
 let Type = data.map((d) => d.Type);
 console.log(Type);
@@ -279,9 +273,9 @@ let y = d3.scaleBand()
   .range([margin.top, height - margin.bottom])
   .padding(0);
 
-// // --------------------------------------
-// //  Axes
-// // --------------------------------------
+// --------------------------------------
+// Axes
+// --------------------------------------
 
 let xAxis = svg.append("g")
     .attr("transform", `translate(0, 145)`)
@@ -300,9 +294,9 @@ let yAxis = svg.append("g")
         .tickPadding(5)
         .tickSize(-width + margin.right + margin.left)); 
 
-// // --------------------------------------
-// //  Bars
-// // --------------------------------------
+// --------------------------------------
+// Bars
+// --------------------------------------
 
 svg
     .selectAll(".rect")
@@ -334,8 +328,6 @@ svg.append("rect")
     .attr("opacity", 0.1); 
 
 });
-
-// //debugger;
 
 </script>    
 </body>

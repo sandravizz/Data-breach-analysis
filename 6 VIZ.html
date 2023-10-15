@@ -179,17 +179,14 @@ body {
 // Size and margin
 // --------------------------------------
 
-var margin = {top: 110, right: 50, bottom: 10, left: 0};
-var totalWidth = 930;
-var totalHeight = 680;
-var width = totalWidth - margin.left - margin.right;
-var height = totalHeight - margin.top - margin.bottom;
+let margin = {top: 110, right: 50, bottom: 10, left: 0};
+let totalWidth = 930;
+let totalHeight = 680;
+let width = totalWidth - margin.left - margin.right;
+let height = totalHeight - margin.top - margin.bottom;
 
-// --------------------------------------
-// SVG
-// --------------------------------------
-
-var svg = d3.select('#chart')
+// SVG container 
+let svg = d3.select('#chart')
 	.append("svg")
 	.attr("width", totalWidth)
 	.attr("height", totalHeight);
@@ -198,7 +195,7 @@ var svg = d3.select('#chart')
 // Legend
 // --------------------------------------
 
-var Legend = svg.append("g")
+let Legend = svg.append("g")
     .attr("class", "legend")
 		.attr("transform", "translate(0,11)");
 
@@ -231,8 +228,8 @@ var Legend = svg.append("g")
 // --------------------------------------
 
     //Scales for the circle buttons
-    var cat_keys1 = ["Sectors", "Types", "Motivation"];
-    var cat_keys2 = ["Asset", "Action", "Variety"];
+    let cat_keys1 = ["Sectors", "Types", "Motivation"];
+    let cat_keys2 = ["Asset", "Action", "Variety"];
 
     const catColors1 = d3.scaleOrdinal()
 		.domain(cat_keys1)
@@ -243,7 +240,7 @@ var Legend = svg.append("g")
 		.range(["black", "black", "black"])
 
 		//Add g element
-		var Buttons = svg.append("g")
+		let Buttons = svg.append("g")
 		.classed("buttons", true)
 		.attr("transform", "translate(80,45)");
 
@@ -263,7 +260,7 @@ var Legend = svg.append("g")
 // Show function
 // --------------------------------------
 
-		var showCat = function(d) {
+		let showCat = function(d) {
 		d3.select(this)
 		.transition()
 		.duration(200)
@@ -306,7 +303,7 @@ var Legend = svg.append("g")
 // Hide function
 // --------------------------------------
 
-		var hideCat = function(d) {
+		let hideCat = function(d) {
 		d3.select(this)
 		.transition()
 		.duration(200)
@@ -388,7 +385,7 @@ var Legend = svg.append("g")
 // Filters
 //--------------------------------------
 
-		var filter = svg.append("g")
+		let filter = svg.append("g")
 		.attr("class", "filter")
 		.attr("transform", `translate(${[10,67]})`);
 
@@ -416,7 +413,7 @@ var Legend = svg.append("g")
 			.attr("transform", `translate(7, 1)`);
 		});
 
-    var filter2 = svg.append("g")
+    let filter2 = svg.append("g")
 		.attr("class", "filter2")
 		.attr("transform", `translate(${[80,67]})`);
 
@@ -674,6 +671,7 @@ d3.select(".cat_circle1")
 
 });
 
+//Motivation
 d3.select(".cat_circle2")
   .on("click", function() {
 
@@ -702,6 +700,7 @@ d3.select(".cat_circle2")
 
 });
 
+//Action
 d3.select(".cat_circle20")
   .on("click", function() {
 
@@ -730,6 +729,7 @@ d3.select(".cat_circle20")
 
 });
 
+//Variety
 d3.select(".cat_circle21")
   .on("click", function() {
 
@@ -758,6 +758,7 @@ svg.selectAll(".text")
 
 });
 
+//Asset
 d3.select(".cat_circle22")
   .on("click", function() {
 
@@ -785,7 +786,6 @@ d3.select(".cat_circle22")
     .attr("opacity", 1);
 
 });
-
 
 });
 

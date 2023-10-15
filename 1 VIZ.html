@@ -128,14 +128,14 @@ body {
 //  Size and margin
 // --------------------------------------
 
-var margin = {top: 0, right: 10, bottom: 10, left: 0};
-var totalWidth = 930;
-var totalHeight = 280;
-var width = totalWidth - margin.left - margin.right;
-var height = totalHeight - margin.top - margin.bottom;
+let margin = {top: 0, right: 10, bottom: 10, left: 0};
+let totalWidth = 930;
+let totalHeight = 280;
+let width = totalWidth - margin.left - margin.right;
+let height = totalHeight - margin.top - margin.bottom;
 
 //SVG container
-var svg = d3.select('#chart')
+let svg = d3.select('#chart')
 	.append("svg")
 	.attr("width", totalWidth)
 	.attr("height", totalHeight);
@@ -255,8 +255,6 @@ const path = svg.append("path")
 .attr("d", line);
  
 });
-
-//debugger;
 
 </script>    
 </body>
