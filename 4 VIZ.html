@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bitsight - Data Breches by type vs. sectors </title>
+    
+  <!-- Google fonts reference-->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,900&display=swap" rel="stylesheet">
+
+    <!-- Connecting with D3 library-->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
+
+</head>
+
+<style>
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:17px;
+  background-color:white;
+}
+
+#top-title {
+	margin-bottom: 10px;
+	margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight:bold;
+  font-size:21px;
+  fill: #1A345F
+}
+
+#intro-text {
+	width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+	display: inline-block;
+	padding-left: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+  font-size: 13px;
+	text-align: justify;
+  line-height: 150%;
+}
+
+/*Chart styling*/
+#chart {
+	position: relative;
+  width: 930px;
+}
+
+#chart svg {
+	z-index: 2;
+  background-color:white;
+}
+
+/*Defining legend stylings*/
+#legend {
+	margin-top: 100px;
+}
+
+#legend-title {
+	text-anchor: middle;
+	font-size: 9px;
+}
+
+.legend-value {
+	font-size: 9px;
+	fill: black;
+}
+
+/*Defining axes stylings*/
+.y-axis text {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+}
+
+.x-axis text {
+  font-family: 'Roboto', sans-serif;
+  transform: rotate(-90deg);
+  font-size:12px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+}
+
+.x-axis path {
+  fill:white;
+  stroke-width:0;
+  fill-opacity:0;
+  stroke:white;
+}
+
+.y-axis path {
+  stroke:#a7e9ff;
+  stroke-width:0.1;
+  fill-opacity:1;
+  fill:#a7e9ff;
+}
+
+.x-axis line  {
+  stroke-width:0;
+}
+
+.y-axis line  {
+  stroke-width:0;
+}
+
+/* Tooltip */
+.tooltip {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  margin-left: 100px;
+  padding: 8px;
+  gap: 4px; 
+  width: 8em;
+  display: flex;
+  flex-direction: row;
+  align-items: left; 
+  text-align: left;
+  color:#0D0D0D;
+  background-color: #ffffff;
+  box-shadow: 1px 3px 8px 
+  rgba(34, 84, 114, 0.2);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+</style>
+
+<body>
+
+<div id="top-title">Finance threated by humans, Technology by their databases. </div>
+<div id="intro-text">Aggregated data breach attacks across sector and type</div>
+
+<div id="chart"></div>
+
+<script>
+
+// --------------------------------------
+//  Size and margin
+// --------------------------------------
+
+var margin = {top: 150, right: 0, bottom: 0, left: 130};
+var totalWidth = 755;
+var totalHeight = 680;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+
+// --------------------------------------
+//  Svg
+// --------------------------------------
+
+var svg = d3.select('#chart')
+	.append("svg")
+	.attr("width", totalWidth)
+	.attr("height", totalHeight);
+
+// --------------------------------------
+// Legend
+// --------------------------------------
+
+//Green color scale
+var greenColor = d3.scaleLinear()
+  .domain([-0.08, 0.8])
+  .range(["#99dcff", "#00166f"]);
+
+var legendWidth = 200,
+    legendHeight = 8;
+
+//legend container
+var legend = svg.append("g")
+  .attr("transform", "translate(" + 400 + "," + 550 + ")");
+
+//Create the gradient	
+var gradient = legend.append("defs").append("linearGradient")
+  .attr("id", "gradient-legend")
+  .attr("x1", "0%").attr("y1", "0%")
+  .attr("x2", "100%").attr("y2", "0%");
+
+//Add colors
+gradient.selectAll("stop") 
+  .data(d3.range(5))                  
+  .enter().append("stop") 
+  .attr("offset", function(d,i) { return i/(6-1); })   
+  .attr("stop-color", function(d,i) { return greenColor(-0.1 + i/6); });
+
+//Add one more stop that is mostly due to the multiply blending effect
+gradient.append("stop") 
+  .attr("offset", 1)   
+  .attr("stop-color", "#103F0C");
+
+//Draw the rectangle
+legend.append("rect")
+  .attr("class", "legend-rect")
+  .attr("x", 0)
+  .attr("y", 10)
+  // .attr("rx", legendHeight/2)
+  .attr("width", legendWidth)
+  .attr("height", legendHeight)
+  .style("fill", "url(#gradient-legend)");
+  
+//Append title to legend
+legend.append("text")
+  .attr("id", "legend-title")
+  .attr("x", legendWidth/2)
+  .attr("y", 4)
+  .text("Number of Data Breaches");
+
+//Append left and right sides to legend
+legend.append("text")
+  .attr("class", "legend-value")
+  .attr("x", 0 - 8)
+  .attr("y", 10)
+  .attr("dy", "0.65em")
+  .style("text-anchor", "end")
+  .text("low");
+
+legend.append("text")
+  .attr("class", "legend-value")
+  .attr("x", legendWidth + 8)
+  .attr("y", 10)
+  .attr("dy", "0.65em")
+  .style("text-anchor", "start")
+  .text("high");
+
+// // --------------------------------------
+// //  Data
+// // --------------------------------------
+
+const data = d3.csv("sector_type.csv", d3.autoType)
+      .then(function(data){ 
+
+// // --------------------------------------
+// // Tooltip 
+// // --------------------------------------
+
+const tooltip = d3.tip()
+                .attr("class", "tooltip")
+                .html((event, d) => `<div>  ${(d.Sector)} <br>${(d.Type)}</br> </div>`)
+
+svg.call(tooltip); 
+
+// // --------------------------------------
+// //  Scales
+// // --------------------------------------
+
+let c = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.count))
+    .range(["#99dcff", "#00166f"]);
+
+// let c2 = d3.scaleSequential(d3.interpolateMagma)
+//         .domain(d3.extent(data, d => d.count).reverse());
+
+let Type = data.map((d) => d.Type);
+console.log(Type);
+
+let Sector = data.map((d) => d.Sector);
+console.log(Sector);
+
+let x = d3.scaleBand()
+  .domain(Sector)
+  .range([margin.left,width - margin.right])
+  .padding(0);
+
+let y = d3.scaleBand()
+  .domain(Type)
+  .range([margin.top, height - margin.bottom])
+  .padding(0);
+
+// // --------------------------------------
+// //  Axes
+// // --------------------------------------
+
+let xAxis = svg.append("g")
+    .attr("transform", `translate(0, 145)`)
+    .attr("class", "x-axis")
+    .style("text-anchor", "start")
+    .style("alignment-baseline", "middle")
+    .call(
+      d3.axisTop(x)
+        .tickPadding(-10));
+
+let yAxis = svg.append("g")
+    .attr("transform", `translate(${margin.left}, 0)`)
+    .attr("class", "y-axis")
+    .call(
+      d3.axisLeft(y)
+        .tickPadding(5)
+        .tickSize(-width + margin.right + margin.left)); 
+
+// // --------------------------------------
+// //  Bars
+// // --------------------------------------
+
+svg
+    .selectAll(".rect")
+    .data(data)
+    .join("rect")
+    .attr("class", ".rect")   
+    .attr("x", (d) => x(d.Sector))
+    .attr("y", (d) => y(d.Type))
+    .attr("width", x.bandwidth())
+    .attr("height", y.bandwidth())
+    .attr("fill", (d) => c(d.count))
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide); 
+
+svg.append("rect")
+		.attr("x", 130)
+		.attr("y", 30)
+		.attr("width", 150.5)
+		.attr("height",120)
+    .attr("fill", "grey") 
+    .attr("opacity", 0.1); 
+
+svg.append("rect")
+		.attr("x", 30)
+		.attr("y", 150)
+		.attr("width", 100)
+		.attr("height",130)
+    .attr("fill", "grey") 
+    .attr("opacity", 0.1); 
+
+});
+
+// //debugger;
+
+</script>    
+</body>
+</html>

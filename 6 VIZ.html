@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bitsight - Data Breches discovery </title>
+    
+    <!-- Google fonts reference-->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,900&display=swap" rel="stylesheet">
+
+    <!-- Connecting with D3 library-->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
+</head>
+
+<style>
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:17px;
+  background-color:white;
+}
+
+#top-title {
+	margin-bottom: 10px;
+	margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight:bold;
+  font-size:21px;
+  fill: #1A345F
+}
+
+#intro-text {
+	width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+	display: inline-block;
+	padding-left: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+  font-size: 13px;
+	text-align: justify;
+  line-height: 150%;
+}
+
+.legend {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+}
+
+.legend2 {
+  font-family: 'Roboto', sans-serif;
+  font-size:11.5px;
+}
+
+/*Chart styling*/
+#chart {
+	position: relative;
+  width: 930px;
+}
+
+#chart svg {
+	z-index: 2;
+  background-color:white;
+}
+
+/* Tooltip */
+.tooltip {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:12px;
+  margin-left: 100;
+  padding: 10px;
+  gap: 8px; 
+  display: flex;
+  flex-direction: row;
+  align-items: right; 
+  text-align: center;
+  color:#0D0D0D;
+  background-color: #ffffff;
+  box-shadow: 1px 3px 8px 
+  rgba(34, 84, 114, 0.2);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+/* Button stylings */
+.cat_circle0, 
+.cat_circle1,
+.cat_circle2,
+.cat_circle20,
+.cat_circle21, 
+.cat_circle22 {
+  fill-opacity:1;
+  stroke-opacity: 0;
+  stroke-width: 1px;
+  stroke:black; 
+  stroke-dasharray: 0;
+}
+
+.cat_circle0:hover, 
+.cat_circle1:hover,
+.cat_circle2:hover,
+.cat_circle20:hover,
+.cat_circle21:hover, 
+.cat_circle22:hover {
+  stroke-opacity: 1;
+  fill-opacity:0;
+}
+
+/*Axes stylings*/
+.x-axis text, .y-axis text {
+  font-family: 'Roboto', sans-serif;
+  font-size:10px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+}
+
+.text {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+  text-anchor: 'end';
+}
+
+.x-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:white;
+}
+
+.y-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:#0D0D0D;
+}
+
+.y-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:"#0D0D0D";
+  stroke-dasharray:0;
+}
+
+.x-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:black;
+  stroke-dasharray:0;
+}
+
+</style>
+
+<body>
+
+<div id="top-title">Ransomeware attacks are the new epidemic </div>
+<div id="intro-text">Evolution of data breach attack reports from 01|2015 to 10|2022 highly severe vs. less severe incidents by type
+<br>In the menu category can by change by click</br></div>
+
+<div id="chart"></div>
+
+<script>
+
+// --------------------------------------
+// Size and margin
+// --------------------------------------
+
+var margin = {top: 110, right: 50, bottom: 10, left: 0};
+var totalWidth = 930;
+var totalHeight = 680;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+
+// --------------------------------------
+// SVG
+// --------------------------------------
+
+var svg = d3.select('#chart')
+	.append("svg")
+	.attr("width", totalWidth)
+	.attr("height", totalHeight);
+
+// --------------------------------------
+// Legend
+// --------------------------------------
+
+var Legend = svg.append("g")
+    .attr("class", "legend")
+		.attr("transform", "translate(0,11)");
+
+    Legend.append("rect")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", "9px")
+		.attr("height", "9px")
+    .attr("fill", "#0C82F5") ; 
+
+    Legend.append("text")
+		.attr("x", 15)
+		.attr("y", 8)
+    .text("less severe attacks") ; 
+
+    Legend.append("rect")
+		.attr("x", 120)
+		.attr("y", 0)
+		.attr("width", "9px")
+		.attr("height", "9px")
+    .attr("fill", "#FF3333") ; 
+
+    Legend.append("text")
+		.attr("x", 135)
+		.attr("y", 8)
+    .text("highly severe attacks") ;
+
+// --------------------------------------
+// Buttons: for the filters
+// --------------------------------------
+
+    //Scales for the circle buttons
+    var cat_keys1 = ["Sectors", "Types", "Motivation"];
+    var cat_keys2 = ["Asset", "Action", "Variety"];
+
+    const catColors1 = d3.scaleOrdinal()
+		.domain(cat_keys1)
+		.range(["black", "black", "black"])
+
+    const catColors2 = d3.scaleOrdinal()
+		.domain(cat_keys2)
+		.range(["black", "black", "black"])
+
+		//Add g element
+		var Buttons = svg.append("g")
+		.classed("buttons", true)
+		.attr("transform", "translate(80,45)");
+
+		//Rect container
+		Buttons.append("rect")
+		.classed("switch_rect", true)
+		.attr("x", -5)
+		.attr("y", -7.5)
+		.attr("width", "33px")
+		.attr("height", "15px")
+		.attr("rx", "7.5px")
+		.attr("ry", "7.5px")
+		.style("fill", "black")
+		.style("fill-opacity", 1);
+
+// --------------------------------------
+// Show function
+// --------------------------------------
+
+		var showCat = function(d) {
+		d3.select(this)
+		.transition()
+		.duration(200)
+		.style("opacity", 0);
+
+    d3.select("circle.off_circle")
+		.transition()
+		.duration(200)
+		.style("opacity", 1);
+
+		d3.select("rect.switch_rect")
+		.transition()
+		.duration(200)
+		.style("fill", "black");
+
+		d3.select(".button_text")
+		.transition()
+		.duration(200)
+		.text("ON")
+		.attr("x", 0)
+		.attr("y", 2.8);
+
+		d3.selectAll("circle.id_all")
+		.transition()
+		.duration(600)
+		.attr("r", 20);
+
+		d3.select("g.filter")
+		.transition()
+		.duration(600)
+		.style("visibility", "visible");
+
+		d3.select("g.filter2")
+		.transition()
+		.duration(600)
+		.style("visibility", "visible");
+  }
+
+// --------------------------------------
+// Hide function
+// --------------------------------------
+
+		var hideCat = function(d) {
+		d3.select(this)
+		.transition()
+		.duration(200)
+		.style("opacity", 0);
+
+		d3.select("circle.on_circle")
+		.transition()
+		.duration(200)
+		.style("opacity", 1);
+
+		d3.select("rect.switch_rect")
+		.transition()
+		.duration(200)
+		.style("fill", "grey");
+
+		d3.select(".button_text")
+		.transition()
+		.duration(200)
+		.text("OFF")
+		.attr("x", 9.4)
+		.attr("y", 2.8);
+
+		d3.selectAll("circle.id_all")
+		.transition()
+		.duration(600)
+		.style("opacity", 0)
+		.attr("r",0);
+
+		d3.select("g.filter")
+		.transition()
+		.duration(600)
+		.style("visibility", "hidden");
+
+    d3.select("g.filter2")
+		.transition()
+		.duration(600)
+		.style("visibility", "hidden");
+  }
+
+// --------------------------------------
+// Menu
+// --------------------------------------
+
+    Buttons.append("circle")
+		.classed("on_circle", true)
+		.attr("cx", 2)
+		.attr("cy", 0)
+		.attr("r", "4px")
+		.style("fill", "white")
+		.style("opacity", 0)
+		.on("click", showCat);
+
+		Buttons.append("circle")
+		.classed("off_circle", true)
+		.attr("class", "off_circle")
+		.attr("cx", 18)
+		.attr("cy", 0)
+		.attr("r", "4px")
+		.style("fill", "white")
+		.style("opacity", 1)
+		.on("click", hideCat);
+
+		Buttons.append("text")
+    .attr("class", "legend2")
+		.attr("x", -75)
+		.attr("y", 2.8)
+		.text("Show menu");
+
+		Buttons.append("text")
+		.classed("button_text", true)
+		.attr("x", 0)
+		.attr("y", 2.3)
+		.style("fill", "white")
+		.style("font-size", "8px")
+		.style("opacity", 1)
+		.text("ON");
+
+//--------------------------------------
+// Filters
+//--------------------------------------
+
+		var filter = svg.append("g")
+		.attr("class", "filter")
+		.attr("transform", `translate(${[10,67]})`);
+
+		filter.selectAll("g.item")
+		.data(cat_keys1)
+		.join("g")
+		.attr("class", "item")
+		.each(function(d, i) {
+			d3.select(this)
+			.append("circle")
+			.classed("cat_circle"+i, true)
+			.attr("cy", i * 13.5)
+			.attr("cx", 0)
+			.attr("r", 4)
+			.style("fill", catColors1(d))
+			.style("stroke", catColors1(d));
+
+		  d3.select(this)
+			.append("text")
+			.attr("y", i * 13.5)
+			.attr("x", 0)
+			.text(d)
+			.style("font-size", "9.5px")
+			.style("alignment-baseline", "middle")
+			.attr("transform", `translate(7, 1)`);
+		});
+
+    var filter2 = svg.append("g")
+		.attr("class", "filter2")
+		.attr("transform", `translate(${[80,67]})`);
+
+		filter2.selectAll("g.item")
+		.data(cat_keys2)
+		.join("g")
+		.attr("class", "item")
+		.each(function(d, i) {
+			d3.select(this)
+			.append("circle")
+			.classed("cat_circle2"+i, true)
+			.attr("cy", i * 13.5)
+			.attr("cx", 0)
+			.attr("r", 4)
+			.style("fill", catColors2(d))
+			.style("stroke", catColors2(d));
+
+		  d3.select(this)
+			.append("text")
+			.attr("y", i * 13.5)
+			.attr("x", 0)
+			.text(d)
+			.style("font-size", "9.5px")
+			.style("alignment-baseline", "middle")
+			.attr("transform", `translate(7, 1)`);
+		});
+
+// --------------------------------------
+// Data
+// --------------------------------------
+
+//Formats
+parseDate = d3.timeParse("%Y-%m-%d");
+console.log(parseDate("2015-01-01"));
+formatDate = d3.timeFormat("%Y | %m");
+formatDate1 = d3.timeFormat("%Y");
+formatNumber = d3.format(".2s");
+
+//Loading 
+const data = d3.csv("data.csv", d3.autoType)
+      .then(function(data){ 
+
+//Sorting
+data.sort((b, a) => {return a.DateRaw - b.DateRaw;});
+  
+// --------------------------------------
+// Tooltip
+// --------------------------------------
+
+const tooltip = d3.tip()
+    .attr("class", "tooltip")
+    .html(
+      (event, d) => `<div>${(d.Sector)}<br>${(d.Type)}</br>Impact ${(d.Impact)}<br>${formatDate(d.DateRaw)}</br></div>`
+    );
+
+svg.call(tooltip); 
+
+// --------------------------------------
+// Scales
+// --------------------------------------
+
+let x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.DateRaw))
+    .range([margin.left, width - margin.right])
+
+//Sector
+let Sector = data.map((d) => d.Sector).sort();
+
+let number_Sector = d3.rollups(
+    data,
+    (v) => d3.sum(v, (d) => d.Number),
+    (d) => d.Sector
+  );
+
+let y1 = d3.scaleBand()
+   .domain(Sector)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2); 
+
+//Type
+let Type = data.map((d) => d.Type).sort((a, b) => a.Number - b.Number);
+
+let number_Type0 = d3.rollups(
+    data,
+    (v) => d3.sum(v, (d) => d.Number),
+    (d) => d.Type
+  );
+
+let number_Type = number_Type0.sort((b, a) => a[1] - b[1]);
+
+let y2 = d3.scaleBand()
+   .domain(Type)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2); 
+
+//Action
+let Att_Action = data.map((d) => d.Att_Action);
+let number_Att_Action = d3.rollups(
+    data,
+    (v) => d3.mean(v, (d) => d.Number),
+    (d) => d.Att_Action
+  );
+
+let y3 = d3.scaleBand()
+   .domain(Att_Action)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2); 
+
+//Motivation
+let Att_Motivation = data.map((d) => d.Att_Motivation);
+let number_Att_Motivation = d3.rollups(
+    data,
+    (v) => d3.mean(v, (d) => d.Number),
+    (d) => d.Att_Motivation
+  );
+
+let y4 = d3.scaleBand()
+   .domain(Att_Motivation)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2);
+ 
+//Variety
+let Att_Variety = data.map((d) => d.Att_Variety);
+let number_Att_Variety = d3.rollups(
+    data,
+    (v) => d3.mean(v, (d) => d.Number),
+    (d) => d.Att_Variety
+  );
+
+let y5 = d3.scaleBand()
+   .domain(Att_Variety)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2);
+
+//Assets
+let Att_Assets = data.map((d) => d.Att_Assets);
+let number_Att_Assets = d3.rollups(
+    data,
+    (v) => d3.mean(v, (d) => d.Number),
+    (d) => d.Att_Assets
+  );
+
+let y6 = d3.scaleBand()
+   .domain(Att_Assets)
+   .range([margin.top, height + margin.top - margin.bottom ])
+   .padding(0.2);
+
+// --------------------------------------
+// Bars
+// --------------------------------------
+
+let bars = svg.selectAll(".bars")
+    .data(data)
+    .join("rect")
+    .attr("class", "bars")
+    .attr("x", d => x(d.DateRaw))
+    .attr("y", margin.top)
+    .attr("fill",d => d.Impact > 100 ? "#FF3333" : "#01A4D9") 
+    .attr("width", (d) => (d.Impact > 100 ? 1.2 : 0.7))
+    .attr("opacity", (d) => (d.Impact > 100 ? 1 : 1))
+    .attr("height", 50)
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .attr("y", d => y2(d.Type))
+    .attr("height", y2.bandwidth());
+
+    svg.selectAll(".text")
+    .data(number_Type)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y2(d[0]))
+    .attr("dy", 13)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .attr("opacity", 1);
+  
+// --------------------------------------
+// Axes
+// --------------------------------------
+
+const xAxis = svg.append("g")
+    .attr("transform", `translate(0,${height + margin.top - margin.bottom})`)
+    .attr("class", "x-axis")
+    .call(
+      d3.axisBottom(x)
+        .tickFormat(formatDate1)
+        .tickPadding(0)
+        .tickValues([parseDate("2015-03-01"), parseDate("2016-03-01"),
+        parseDate("2017-03-01"), parseDate("2018-03-01"),
+        parseDate("2019-03-01"), parseDate("2020-03-01"),
+        parseDate("2021-03-01"), parseDate("2022-03-01")])
+        );
+
+// --------------------------------------
+// Filter events
+// --------------------------------------
+
+//Sector
+d3.select(".cat_circle0")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y1(d.Sector))
+    .attr("height", y1.bandwidth());
+
+    svg.selectAll(".text")
+    .data(number_Sector)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y1(d[0]))
+    .attr("dy", 13)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+//Types
+d3.select(".cat_circle1")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y2(d.Type))
+    .attr("height", y2.bandwidth());
+
+    svg.selectAll(".text")
+    .data(number_Type)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y2(d[0]))
+    .attr("dy", 13)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+d3.select(".cat_circle2")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y4(d.Att_Motivation))
+    .attr("height", y4.bandwidth());
+
+  svg.selectAll(".text")
+    .data(number_Att_Motivation)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y4(d[0]))
+    .attr("dy", 40)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+d3.select(".cat_circle20")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y3(d.Att_Action))
+    .attr("height", y3.bandwidth());
+
+  svg.selectAll(".text")
+    .data(number_Att_Action)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y3(d[0]))
+    .attr("dy", 30)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+d3.select(".cat_circle21")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y5(d.Att_Variety))
+    .attr("height", y5.bandwidth());
+
+svg.selectAll(".text")
+    .data(number_Att_Variety)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y5(d[0]))
+    .attr("dy", 70)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+d3.select(".cat_circle22")
+  .on("click", function() {
+
+  svg.selectAll(".bars")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(1000)
+    .attr("y", d => y6(d.Att_Assets))
+    .attr("height", y6.bandwidth());
+
+  svg.selectAll(".text")
+    .data(number_Att_Assets)
+    .join("text")
+    .attr("class", "text")
+    .attr("opacity", 0)
+    .attr("x", width - margin.right)
+    .attr("y", (d) => y6(d[0]))
+    .attr("dy", 35)
+    .attr("dx", 6)
+    .text((d) => d[0])
+    .transition()
+    .delay(1200)
+    .duration(1200)
+    .attr("opacity", 1);
+
+});
+
+
+});
+
+</script>    
+</body>
+</html>

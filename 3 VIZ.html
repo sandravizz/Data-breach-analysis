@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bitsight - Data Breches by sectors </title>
+
+  <!-- Google fonts reference-->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,900&display=swap" rel="stylesheet">
+
+  <!-- Connecting with D3 library-->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
+
+</head>
+
+<style>
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:17px;
+  background-color:white;
+}
+
+#top-title {
+	margin-bottom: 10px;
+	margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight:bold;
+  font-size:21px;
+  fill: #1A345F
+}
+
+#intro-text {
+	width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+	display: inline-block;
+	padding-left: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+  font-size: 13px;
+	text-align: justify;
+  line-height: 150%;
+}
+
+/*Chart styling*/
+#chart {
+	position: relative;
+  width: 930px;
+}
+
+#chart svg {
+	z-index: 2;
+  background-color:white;
+}
+
+.legend {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+}
+
+/* Chart styling */
+.text {
+  font-family: 'Roboto', sans-serif;
+  font-weight:400;
+  font-size:12px;
+}
+
+/* Tooltip */
+.tooltip {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  margin-left: 100px;
+  padding: 10px;
+  gap: 8px; 
+  width: 20em;
+  display: flex;
+  flex-direction: row;
+  align-items: right; 
+  text-align: left;
+  color:#0D0D0D;
+  background-color: #ffffff;
+  box-shadow: 1px 3px 8px 
+  rgba(34, 84, 114, 0.2);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+</style>
+
+<body>
+
+<div id="top-title">Unknown and criminal business are the main types</div>
+<div id="intro-text">Aggregated data breach attack reports by type</div>
+
+<div id="chart"></div>
+
+<script>
+
+// --------------------------------------
+// Size and margin
+// --------------------------------------
+
+var margin = {top: 0, right: 0, bottom: 0, left: 0};
+var totalWidth = 930;
+var totalHeight = 510;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+
+// --------------------------------------
+// SVG
+// --------------------------------------
+
+var svg = d3.select('#chart')
+	.append("svg")
+	.attr("width", totalWidth)
+	.attr("height", totalHeight);
+
+// --------------------------------------
+// Legend
+// --------------------------------------
+
+var Legend = svg.append("g")
+    .attr("class", "legend")
+		.attr("transform", "translate(0,11)");
+
+    Legend.append("rect")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", "9px")
+		.attr("height", "9px")
+    .attr("fill", "#0C82F5") ; 
+
+    Legend.append("text")
+		.attr("x", 15)
+		.attr("y", 8)
+    .text("> the average") ; 
+
+// --------------------------------------
+// Data
+// --------------------------------------
+
+const data = d3.csv("types.csv", d3.autoType)
+      .then(function(data){ 
+  
+// --------------------------------------
+// Tooltip
+// --------------------------------------
+
+const tooltip = d3.tip()
+                .attr("class", "tooltip")
+                .html((event, d) => `<div> <b>${(d.Name)}</b> <br>${(d.Tooltip)}</br> </div>`)
+
+svg.call(tooltip); 
+
+
+// --------------------------------------
+// Scales
+// --------------------------------------
+
+let x2 = d3.scaleLinear()
+  .domain([0, 4680])
+  .range([margin.left,width - margin.right])
+
+// --------------------------------------
+// Bars
+// --------------------------------------
+
+svg
+    .selectAll(".bars")
+    .data(data)
+    .join("rect")
+    .attr("class", "bars")
+    .attr("x", margin.left)
+    .attr("y", (d, i) => 50+ i * 22)
+    .attr("width", 0)
+    .attr("height",21)
+    .attr("fill", "#0C82F5") 
+    .attr("opacity",d => d.count > d3.mean(data, (d) => d.count).toFixed(2) ? 1 : 0.3)     
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide)
+    .transition()
+    .duration(500)
+    .attr("width", (d) => x2(d.count));
+
+// --------------------------------------
+// Text
+// --------------------------------------
+
+svg
+    .append("g")
+    .selectAll(".text")
+    .data(data)
+    .join("text")
+    .attr("class", "text")
+    .attr("x", margin.left)
+    .attr("y", (d, i) => 50+ i * 22)
+    .attr("fill", d => d.count > d3.mean(data, (d) => d.count).toFixed(2) ? "white" : "black")
+    .attr("opacity", d => d.count > d3.mean(data, (d) => d.count).toFixed(2) ? 1 : 0.5)
+    .attr("dy", 15)
+    .attr("dx", 4)
+    .text((d) => (d.Name))
+    .attr("class", "text")
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide);  
+
+});
+
+//debugger;
+
+</script>    
+</body>
+</html>

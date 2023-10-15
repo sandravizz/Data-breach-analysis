@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bitsight - Data Breches discovery </title>
+    
+    <!-- Google fonts reference-->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,900&display=swap" rel="stylesheet">
+
+    <!-- Connecting with D3 library-->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
+</head>
+
+<style>
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:17px;
+  background-color:white;
+}
+
+#top-title {
+	margin-bottom: 10px;
+	margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight:bold;
+  font-size:21px;
+  fill: #1A345F
+}
+
+#intro-text {
+	width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+	display: inline-block;
+	padding-left: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+  font-size: 13px;
+	text-align: justify;
+  line-height: 150%;
+}
+
+/*Chart styling*/
+#chart {
+	position: relative;
+  width: 930px;
+}
+
+#chart svg {
+	z-index: 2;
+  background-color:white;
+}
+
+.legend {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+}
+
+.line {
+   fill-opacity:0;
+   stroke-width: 0.8px;
+   stroke:#1a345f;
+}
+
+/* Tooltip */
+.tooltip {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:12px;
+  padding: 10px;
+  gap: 8px; 
+  display: flex;
+  flex-direction: row;
+  align-items: center; 
+  text-align: center;
+  color:#0D0D0D;
+  background-color: #ffffff;
+  box-shadow: 1px 3px 8px 
+  rgba(34, 84, 114, 0.2);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+/*Axes stylings*/
+.x-axis text, .y-axis text {
+  font-family: 'Roboto', sans-serif;
+  font-size:10px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+}
+
+.text {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  font-weight:300;
+  fill-opacity: 1;
+  fill:black;
+  text-anchor: 'end';
+}
+
+.x-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:white;
+}
+
+.y-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:#0D0D0D;
+}
+
+.y-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:"#0D0D0D";
+  stroke-dasharray:0;
+}
+
+.x-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:black;
+  stroke-dasharray:0;
+}
+
+</style>
+
+<body>
+
+<div id="top-title">Less but more severe attacks, what is behind this change? </div>
+<div id="intro-text">Evolution of data breach attack reports from 01|2015 to 10|2022 highly severe vs. less severe incidents</div>
+
+<div id="chart"></div>
+
+<script>
+
+// --------------------------------------
+// Size and margin
+// --------------------------------------
+
+var margin = {top: 100, right: 50, bottom: 0, left: 0};
+var totalWidth = 930;
+var totalHeight = 150;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+
+// --------------------------------------
+// SVG
+// --------------------------------------
+
+var svg = d3.select('#chart')
+	.append("svg")
+	.attr("width", totalWidth)
+	.attr("height", totalHeight);
+
+// --------------------------------------
+// Legend
+// --------------------------------------
+
+var Legend = svg.append("g")
+    .attr("class", "legend")
+		.attr("transform", "translate(0,11)");
+
+    Legend.append("rect")
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", "9px")
+		.attr("height", "9px")
+    .attr("fill", "#0C82F5") ; 
+
+    Legend.append("text")
+		.attr("x", 15)
+		.attr("y", 8)
+    .text("less severe attacks") ; 
+
+    Legend.append("rect")
+		.attr("x", 120)
+		.attr("y", 0)
+		.attr("width", "9px")
+		.attr("height", "9px")
+    .attr("fill", "#FF3333") ; 
+
+    Legend.append("text")
+		.attr("x", 135)
+		.attr("y", 8)
+    .text("highly severe attacks") ; 
+
+// --------------------------------------
+// Data
+// --------------------------------------
+
+//Formats
+parseDate = d3.timeParse("%Y-%m-%d");
+console.log(parseDate("2015-01-01"));
+formatDate = d3.timeFormat("%Y | %m");
+formatDate1 = d3.timeFormat("%Y");
+formatNumber = d3.format(".2s");
+
+//Loading 
+const data = d3.csv("data.csv", d3.autoType)
+      .then(function(data){ 
+
+//Sorting
+data.sort((b, a) => {return a.DateRaw - b.DateRaw;});
+
+// --------------------------------------
+// Tooltip
+// --------------------------------------
+
+const tooltip = d3.tip()
+    .attr("class", "tooltip")
+    .html(
+      (event, d) => `<div>${(d.Sector)}<br>${(d.Type)}</br>Impact ${(d.Impact)}<br>${formatDate(d.DateRaw)}</br></div>`
+    );
+
+svg.call(tooltip); 
+  
+// --------------------------------------
+// Scales
+// --------------------------------------
+
+let x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.DateRaw))
+    .range([margin.left, width - margin.right])
+
+// --------------------------------------
+// Bars
+// --------------------------------------
+
+let bars = svg.selectAll(".bars")
+    .data(data)
+    .join("rect")
+    .attr("class", "bars")
+    .attr("x", d => x(d.DateRaw))
+    .attr("y", margin.top)
+    .attr("height", 70)
+    .attr("fill",d => d.Impact > 100 ? "#FF3333" : "#01A4D9") 
+    .attr("width", (d) => (d.Impact > 100 ? 0.8 : 0.1))
+    .attr("opacity", (d) => (d.Impact > 100 ? 1 : 0.8))
+    .attr("height", 50)
+    .on("mouseover", tooltip.show)
+    .on("mouseout", tooltip.hide);
+  
+// --------------------------------------
+// Axes
+// --------------------------------------
+
+const xAxis = svg.append("g")
+    .attr("transform", `translate(0,70)`)
+    .attr("class", "x-axis")
+    .call(
+      d3.axisBottom(x)
+        .tickFormat(formatDate1)
+        .tickPadding(3)
+        .tickValues([parseDate("2015-03-01"), parseDate("2016-03-01"),
+        parseDate("2017-03-01"), parseDate("2018-03-01"),
+        parseDate("2019-03-01"), parseDate("2020-03-01"),
+        parseDate("2021-03-01"), parseDate("2022-03-01")])
+        );
+
+});
+
+// --------------------------------------
+// Line chart
+// --------------------------------------
+
+//Data loading 
+const data2 = d3.csv("data_month.csv", d3.autoType)
+      .then(function(data2){ 
+
+//Scales 
+let xscale = d3.scaleTime()
+    .domain(d3.extent(data2, d => d.date))
+    .range([margin.left,width - margin.right])
+
+let yscale = d3.scaleLinear()
+    .domain([0, d3.max(data2, (d) => d.value)])
+    .range([80,40])
+
+//Generators
+let line = d3.line()
+  .defined((d) => d.value > 0)
+  .curve(d3.curveNatural)
+  .x((d) => xscale(d.date))
+  .y((d) => yscale(d.value))
+
+//Draw line 
+const path = svg.append("path")
+.datum(data2)
+.attr("class", "line")
+.attr("d", line);
+ 
+});
+
+</script>    
+</body>
+</html>

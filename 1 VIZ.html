@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bitsight - Data Breches over time </title>
+    
+  <!-- Google fonts reference-->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300;1,900&display=swap" rel="stylesheet">
+
+  <!-- Connecting with D3 library-->
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<style>
+
+html {
+  background-color: white;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+  font-size:17px;
+  background-color:white;
+}
+
+#top-title {
+	margin-bottom: 10px;
+	margin-top: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight:bold;
+  font-size:21px;
+  fill: #1A345F
+}
+
+#intro-text {
+	width: 100%;
+  font-family: 'Roboto', sans-serif;
+  font-weight:300;
+	display: inline-block;
+	padding-left: 0px;
+	padding-right: 0px;
+	vertical-align: top;
+  font-size: 13px;
+	text-align: justify;
+  line-height: 150%;
+}
+
+/*Chart styling*/
+#chart {
+	position: relative;
+  width: 930px;
+}
+
+#chart svg {
+	z-index: 2;
+  background-color:white;
+}
+
+.line {
+   fill-opacity:0;
+   stroke-width: 0.1px;
+   stroke:#0C82F5;
+}
+
+/*Defining axes stylings*/
+.x-axis text {
+  font-family: 'Roboto', sans-serif;
+  font-size:10px;
+  font-weight:200;
+  fill-opacity: 1;
+  fill:black;
+}
+
+.y-axis text {
+  font-family: 'Roboto', sans-serif;
+  font-size:12px;
+  font-weight:300;
+  fill-opacity: 0;
+  fill:black;
+}
+
+.x-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:white;
+}
+
+.y-axis path {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:#0D0D0D;
+}
+
+.y-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:0.4;
+  stroke:"#0D0D0D";
+  stroke-dasharray:0;
+}
+
+.x-axis line {
+  fill:none;
+  stroke-width:0;
+  stroke-opacity:1;
+  stroke:black;
+  stroke-dasharray:0;
+}
+
+</style>
+
+<body>
+
+<div id="top-title">Data breach reports show upward trend switching around in 2021</div>
+<div id="intro-text">Evolution of data breach attack reports from 01|2015 to 10|2022 affecting enteties located in the US</div>
+
+<div id="chart"></div>
+
+<script>
+
+// --------------------------------------
+//  Size and margin
+// --------------------------------------
+
+var margin = {top: 0, right: 10, bottom: 10, left: 0};
+var totalWidth = 930;
+var totalHeight = 280;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+
+//SVG container
+var svg = d3.select('#chart')
+	.append("svg")
+	.attr("width", totalWidth)
+	.attr("height", totalHeight);
+
+// --------------------------------------
+// Color gradient
+// --------------------------------------
+
+let areaGradient = svg
+    .append("defs")
+    .append("linearGradient")
+    .attr("id", "areaGradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "0%")
+    .attr("y2", "100%");
+
+  areaGradient
+    .append("stop")
+    .attr("offset", 0.3)
+    .attr("stop-color","#0C82F5")
+    .attr("stop-opacity", 0.7);
+
+  areaGradient
+    .append("stop")
+    .attr("offset", 1)
+    .attr("stop-color",  "#0C82F5")
+    .attr("stop-opacity", 0);
+    
+// --------------------------------------
+// Data 
+// --------------------------------------
+
+//Formats 
+parseDate = d3.timeParse("%Y-%m");
+console.log(parseDate("2015-01"));
+formatDate = d3.timeFormat("%Y");
+formatNumber = d3.format(".2s");
+
+//Loading 
+const data = d3.csv("data_month.csv", d3.autoType)
+      .then(function(data){ 
+
+dates = data.map((d) => d.date)
+
+// --------------------------------------
+// Scales
+// --------------------------------------
+
+let xscale = d3.scaleTime()
+    .domain(d3.extent(data, d => d.date))
+    .range([margin.left, totalWidth - margin.right])
+
+let yscale = d3.scaleLinear()
+  .domain([0, d3.max(data, (d) => d.value)+150])
+  .range([height - margin.bottom, margin.top])
+
+// --------------------------------------
+// Generators
+// --------------------------------------
+  
+let line = d3.line()
+  .defined((d) => d.value > 0)
+  .curve(d3.curveNatural)
+  .x((d) => xscale(d.date))
+  .y((d) => yscale(d.value))
+
+let area = d3.area()
+  .defined((d) => d.value > 0)
+  .curve(d3.curveNatural)
+  .x((d) => xscale(d.date))
+  .y0(yscale(0))
+  .y1((d) => yscale(d.value))
+
+// --------------------------------------
+// Axes
+// --------------------------------------
+  
+const yAxis = svg.append("g")
+    .attr("transform", `translate(0,0)`)
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(yscale)
+            .tickSize(-width + margin.left)
+            .tickValues([100, 200, 300]))
+
+const xAxis = svg.append("g")
+    .attr("transform", `translate(16,${height - margin.bottom})`)
+    .attr("class", "x-axis")
+    .call(
+      d3
+        .axisBottom(xscale)
+        .tickFormat(formatDate)
+        .tickPadding(0)
+        .tickValues([parseDate("2015-01"), 
+        parseDate("2016-01"),
+        parseDate("2017-01"),
+        parseDate("2018-01"),
+        parseDate("2019-01"),
+        parseDate("2020-01"),
+        parseDate("2021-01"),
+        parseDate("2022-01"),])
+        );
+
+// --------------------------------------
+// Line and area 
+// --------------------------------------
+
+const path_area = svg.append("path")
+.datum(data)
+.attr("class", "area")
+.style("fill", "url(#areaGradient)")
+.attr("d", area);
+
+const path = svg.append("path")
+.datum(data)
+.attr("class", "line")
+.attr("d", line);
+ 
+});
+
+//debugger;
+
+</script>    
+</body>
+</html>
