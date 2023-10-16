@@ -17,5 +17,11 @@ The dataset didn't include any numeric variable hence showing frequency by categ
 Another challenge was to understand which data patterns are revealing realworld trends. In order to overcome I researched deeply the topic and kept in close contact with the Bitsight team. 
 
 After discussing the results of the EDA with the Bitsight team I decided to use an interactive barcode chart in the format of a small multiples. 
+
+![Alt text](<Images/Viz 6.png>)
+
+![Alt text](<Images/Screen Recording 2023-10-16 at 16.10.27.gif>)
+
+
 This chart allows the user to make several comparisons in one view. First comparing low severe (=blue) vs. high severe (=red) cases over time and secondly by different category types like sectors, motivation, assets etc. The chart includes a tooltip to show all details per case. For the purpose of smooth UX I applied transitions when buttons are pressed. The whole visualisation is written using d3.js.  
 
