@@ -20,8 +20,5 @@ After discussing the results of the EDA with the Bitsight team I decided to use 
 
 ![Alt text](<Images/Viz 6.png>)
 
-![Alt text](<Images/Screen Recording 2023-10-16 at 16.10.27.gif>)
-
-
 This chart allows the user to make several comparisons in one view. First comparing low severe (=blue) vs. high severe (=red) cases over time and secondly by different category types like sectors, motivation, assets etc. The chart includes a tooltip to show all details per case. For the purpose of smooth UX I applied transitions when buttons are pressed. The whole visualisation is written using d3.js.  
 
