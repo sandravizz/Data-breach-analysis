@@ -16,7 +16,7 @@ The dataset didn't include any numeric variable hence showing frequency by categ
 
 Another challenge was to understand which data patterns are revealing realworld trends. In order to overcome I researched deeply the topic and kept in close contact with the Bitsight team. 
 
-After discussing the results of the EDA with the Bitsight team I decided to use an interactive barcode chart in the format of a small multiples. 
+After discussing the results of the EDA with the Bitsight team I decided to use an interactive barcode chart in the format of small multiples. 
 
 ![!\[Alt text\](<Images/Viz 6.png>)](<Images/Viz 6.jpeg>)
 
