@@ -118,7 +118,7 @@ body {
 <body>
 
 <div id="top-title">Data breach reports show upward trend switching around in 2021</div>
-<div id="intro-text">Evolution of data breach attack reports from 01|2015 to 10|2022 affecting enteties located in the US</div>
+<div id="intro-text">Evolution of data breach attack reports from 01|2015 to 10|2022 affecting entities located in the US</div>
 
 <div id="chart"></div>
 
@@ -128,14 +128,14 @@ body {
 //  Size and margin
 // --------------------------------------
 
-let margin = {top: 0, right: 10, bottom: 10, left: 0};
-let totalWidth = 930;
-let totalHeight = 280;
-let width = totalWidth - margin.left - margin.right;
-let height = totalHeight - margin.top - margin.bottom;
+var margin = {top: 0, right: 10, bottom: 10, left: 0};
+var totalWidth = 930;
+var totalHeight = 280;
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
 
 //SVG container
-let svg = d3.select('#chart')
+var svg = d3.select('#chart')
 	.append("svg")
 	.attr("width", totalWidth)
 	.attr("height", totalHeight);
@@ -255,6 +255,8 @@ const path = svg.append("path")
 .attr("d", line);
  
 });
+
+//debugger;
 
 </script>    
 </body>
