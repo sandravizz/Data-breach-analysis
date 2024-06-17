@@ -5,10 +5,10 @@ Bitsight, the international cybersecurity rating agency requested an interactive
 ## My workflow
 
 - Data processing using arquero.js
-- EDA using arquero.js and plot.js
+- [EDA using arquero.js and plot](/Users/sandrabecker/Data-breach-analysis/EDA)
 - Creating a storyline based on the most interesting patterns discovered in the EDA
 - Designing different data visualisation options using d3.js
-- Writing the blog post including the final interactive visualisations
+- Writing the [blog post](https://www.bitsight.com/blog/what-data-breaches-tell-us-analysis-17000-us-data-breaches)including the final interactive visualisations
 
 ## Challenges
 
@@ -25,5 +25,3 @@ This chart allows the user to make several comparisons in one view. First compar
 Made with :green_heart: by [Sandraviz](https://www.sandraviz.com/bio)
 
 Follow me: [twitter](https://twitter.com/SandraCrypto), [linkedin](https://www.linkedin.com/in/sandradataviz/) and [observable](https://observablehq.com/@sandraviz)
-
-
