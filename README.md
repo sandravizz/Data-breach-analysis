@@ -1,6 +1,6 @@
 # Data breach analysis
 
-Bitsight, the international cybersecurity rating agency requested an interactive data storytelling about trends in data breaches. Bitsight provided me with a dataset including data breach security incidents from 2015 to 2022 in the US.
+Bitsight, the international cybersecurity rating agency requested an interactive data storytelling about trends in data breaches. Bitsight provided me with a dataset including data breach security incidents from 2015 to 2022 in the US. Please check out the [project summary](https://www.sandraviz.com/data-breaches).
 
 ## My workflow
 
