@@ -22,6 +22,8 @@ After discussing the results of the EDA with the Bitsight team I decided to use 
 
 This chart allows the user to make several comparisons in one view. First comparing low severe (=blue) vs. high severe (=red) cases over time and secondly by different category types like sectors, motivation, assets etc. The chart includes a tooltip to show all details per case. For the purpose of smooth UX I applied transitions when buttons are pressed. The whole visualisation is written using d3.js.
 
-Made with :green_heart: by [Sandraviz](https://www.sandraviz.com/bio)
+---
 
-Follow me: [linkedin](https://www.linkedin.com/in/sandradataviz/) and [observable](https://observablehq.com/@sandraviz)
+Made with :green_heart: by [Sandra](https://www.sandraviz.com)
+
+I am available for freelance data visualization work. Please [contact me](https://www.sandraviz.com/contact) in case you would like me to help you with my experience and expertise or [follow](https://bsky.app/profile/sandraviz.bsky.social) and [connect](https://www.linkedin.com/in/sandradataviz/) with me.
